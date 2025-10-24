@@ -1,0 +1,54 @@
+{
+	"name": "Polkadot Watcher Dev Environment",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"typescript.preferences.includePackageJsonAutoImports": "auto",
+				"typescript.updateImportsOnFileMove.enabled": "always",
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.fixAll.eslint": true
+				},
+				"eslint.validate": ["typescript", "javascript"]
+			},
+			
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-vscode.vscode-typescript-next",
+				"dbaeumer.vscode-eslint",
+				"ms-vscode.vscode-json",
+				"bradlc.vscode-tailwindcss",
+				"esbenp.prettier-vscode",
+				"ms-vscode.test-adapter-converter",
+				"hbenl.vscode-mocha-test-adapter"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [3000, 8080, 9090],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "yarn install",
+
+	// Configure to use the node user (instead of root)
+	"remoteUser": "node",
+
+	// Persist bash history
+	"mounts": [
+		"source=polkadot-watcher-bashhistory,target=/home/node/.bash_history,type=volume"
+	]
+}

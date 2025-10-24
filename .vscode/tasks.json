@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "build",
+      "detail": "Build TypeScript project",
+      "problemMatcher": [
+        "$tsc"
+      ]
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "label": "test",
+      "detail": "Run tests with Mocha",
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "group": "build",
+      "label": "lint",
+      "detail": "Run ESLint",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ]
+    },
+    {
+      "type": "shell",
+      "label": "start:dev",
+      "command": "yarn",
+      "args": [
+        "build",
+        "&&",
+        "node",
+        "./dist/index.js",
+        "start"
+      ],
+      "group": "build",
+      "detail": "Build and start the application",
+      "problemMatcher": []
+    }
+  ]
+}

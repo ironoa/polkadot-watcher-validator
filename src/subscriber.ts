@@ -55,12 +55,19 @@ export class Subscriber {
 
   private async _handleNewHeadSubscriptions(): Promise<void> {
     this.api.rpc.chain.subscribeNewHeads(async (header) => {
-      this._producerHandler(header);
-      this._validatorStatusHandler();
-      this._payeeChangeHandler(header);
-      this._commissionChangeHandler(header);
-      this._checkUnexpected();
+      // a load-balanced RPC backend may not know the new head hash yet ("Unable to
+      // retrieve header and parent from supplied hash"): any rejection escaping this
+      // callback is an unhandled rejection and kills the process, so guard every handler
+      this._guarded(this._producerHandler(header), 'producerHandler');
+      this._guarded(this._validatorStatusHandler(), 'validatorStatusHandler');
+      this._guarded(this._payeeChangeHandler(header), 'payeeChangeHandler');
+      this._guarded(this._commissionChangeHandler(header), 'commissionChangeHandler');
+      this._guarded(this._checkUnexpected(), 'checkUnexpected');
     })
+  }
+
+  private _guarded(handler: Promise<void>, handlerName: string): void {
+    handler.catch(error => this.logger.error(`${handlerName} failed, skipping: ${error}`))
   }
 
   private async _checkUnexpected(): Promise<void> {
@@ -122,7 +129,7 @@ export class Subscriber {
 
     this.api.query.system.events((events) => {
 
-      events.forEach(async (record) => {
+      events.forEach((record) => {
         const { event } = record;
 
         if (this.api.events.staking.SlashReported.is(event)) {
@@ -130,7 +137,7 @@ export class Subscriber {
         }
 
         if (this.api.events.session.NewSession.is(event)) {
-          await this._newSessionEventHandler()
+          this._guarded(this._newSessionEventHandler(), 'newSessionEventHandler')
         }
       });
     });

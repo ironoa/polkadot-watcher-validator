@@ -4,6 +4,14 @@ Actively maintained fork of the (dormant) [w3f/polkadot-watcher-validator](https
 post-Asset-Hub-Migration support and fixes. Releases are tagged `vX.Y.Z` and published
 as the `ironoa/polkadot-watcher` Docker image.
 
+```mermaid
+flowchart LR
+    chain["Relay chain<br>(public RPC endpoint)"] -.->|"wss: new heads + events"| sub["Subscriber"]
+    sub --> h["handlers: block production,<br>active set, payee/commission,<br>slash reports"]
+    h --> prom["Prometheus metrics<br>:3000/metrics"]
+    prom -->|scraped| ext["Prometheus + Alertmanager<br>(alert rules shipped via helm chart)"]
+```
+
 ## How to Run 
 
 ### Requirements

@@ -1,6 +1,8 @@
-[![CircleCI](https://circleci.com/gh/w3f/polkadot-watcher-validator.svg?style=svg)](https://circleci.com/gh/w3f/polkadot-watcher-validator)
-
 # polkadot-watcher-validator 
+
+Actively maintained fork of the (dormant) [w3f/polkadot-watcher-validator](https://github.com/w3f/polkadot-watcher-validator):
+post-Asset-Hub-Migration support and fixes. Releases are tagged `vX.Y.Z` and published
+as the `ironoa/polkadot-watcher` Docker image.
 
 ## How to Run 
 
@@ -8,8 +10,8 @@
 - yarn: https://classic.yarnpkg.com/en/docs/install/
 
 ```bash
-git clone https://github.com/w3f/polkadot-watcher.git
-cd polkadot-watcher
+git clone git@github.com:ironoa/polkadot-watcher-validator.git
+cd polkadot-watcher-validator
 cp config/main.sample.yaml config/main.yaml 
 #just the first time
 
@@ -17,6 +19,8 @@ yarn
 yarn build
 yarn start
 ```
+
+A ready-to-use dev container setup is available too: see [DEV_CONTAINER_GUIDE.md](DEV_CONTAINER_GUIDE.md).
 
 ## About
 

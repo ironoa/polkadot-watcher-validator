@@ -54,7 +54,7 @@ export class Subscriber {
   }
 
   private async _handleNewHeadSubscriptions(): Promise<void> {
-    this.api.rpc.chain.subscribeNewHeads(async (header) => {
+    this._guarded(this.api.rpc.chain.subscribeNewHeads(async (header) => {
       // a load-balanced RPC backend may not know the new head hash yet ("Unable to
       // retrieve header and parent from supplied hash"): any rejection escaping this
       // callback is an unhandled rejection and kills the process, so guard every handler
@@ -63,10 +63,10 @@ export class Subscriber {
       this._guarded(this._payeeChangeHandler(header), 'payeeChangeHandler');
       this._guarded(this._commissionChangeHandler(header), 'commissionChangeHandler');
       this._guarded(this._checkUnexpected(), 'checkUnexpected');
-    })
+    }), 'subscribeNewHeads')
   }
 
-  private _guarded(handler: Promise<void>, handlerName: string): void {
+  private _guarded(handler: Promise<unknown>, handlerName: string): void {
     handler.catch(error => this.logger.error(`${handlerName} failed, skipping: ${error}`))
   }
 
@@ -75,8 +75,15 @@ export class Subscriber {
     const stakingMap = new Map<string, DeriveStakingQuery>()
     tmp.forEach(t => stakingMap.set(t.accountId.toString(), t))
     this.validators.forEach(v => {
+      const stakingQuery = stakingMap.get(v.address)
+      if (!stakingQuery) {
+        // address not returned by the query (not bonded / wrong network): skip it
+        // without aborting the checks for the other validators
+        this.logger.info(`no staking data for validator ${v.name} (${v.address}), skipping checks`)
+        return
+      }
       let isOkCommission = true
-      const actualCommission = stakingMap.get(v.address).validatorPrefs.commission.toNumber() //expressed in ppb
+      const actualCommission = stakingQuery.validatorPrefs.commission.toNumber() //expressed in ppb
       if (v.expected?.commission) {
         isOkCommission = false
         switch (this.cfg.commissionLogic) {
@@ -95,7 +102,7 @@ export class Subscriber {
       }
 
       let isOkPayee = true
-      const actualRewardDestination = stakingMap.get(v.address).rewardDestination
+      const actualRewardDestination = stakingQuery.rewardDestination
       if (v.expected?.payee) {
         isOkPayee = false
         switch (v.expected.payee) {
@@ -127,7 +134,7 @@ export class Subscriber {
 
   private async _subscribeEvents(): Promise<void> {
 
-    this.api.query.system.events((events) => {
+    this._guarded(this.api.query.system.events((events) => {
 
       events.forEach((record) => {
         const { event } = record;
@@ -140,7 +147,7 @@ export class Subscriber {
           this._guarded(this._newSessionEventHandler(), 'newSessionEventHandler')
         }
       });
-    });
+    }), 'subscribeEvents');
   }
 
   private async _producerHandler(header: Header): Promise<void> {

@@ -1,5 +1,5 @@
 image:
-  repo: web3f/polkadot-watcher
+  repo: ironoa/polkadot-watcher
   # tag: latest
 
 config:

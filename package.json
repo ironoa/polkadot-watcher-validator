@@ -1,8 +1,8 @@
 {
   "name": "polkadot-watcher",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "description": "Monitor events on Polkadot networks",
-  "repository": "git@github.com:w3f/polkadot-watcher.git",
+  "repository": "git@github.com:ironoa/polkadot-watcher-validator.git",
   "author": "W3F Infrastructure Team <devops@web3.foundation>",
   "license": "Apache-2.0",
   "main": "./dist/index.js",

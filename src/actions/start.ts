@@ -34,11 +34,22 @@ const _loadConfig = async (config: any): Promise<InputConfig> =>{
 }
 
 export async function startAction(cmd): Promise<void> {
+    // commander invokes this via program.parse (not parseAsync): a rejection here
+    // would be an unhandled rejection and kill the process without a clear log
+    try {
+        await _startAction(cmd)
+    } catch (error) {
+        console.error(`startup failed: ${error}`)
+        process.exit(1)
+    }
+}
+
+async function _startAction(cmd): Promise<void> {
     const cfg = await _loadConfig(cmd.config)
-    
+
     const logger = LoggerSingleton.getInstance(cfg.logLevel)
     logger.info(`loaded ${cfg.validators.length} accounts`)
-    
+
     const server = express();
     server.get('/healthcheck',
         async (req: express.Request, res: express.Response): Promise<void> => {
@@ -47,9 +58,9 @@ export async function startAction(cmd): Promise<void> {
     server.get('/metrics', async (req: express.Request, res: express.Response) => {
             res.set('Content-Type', register.contentType)
             res.end(await register.metrics())
-        })    
+        })
     server.listen(cfg.port);
-    
+
     const api = await new Client(cfg).connect()
     const chain = await api.rpc.system.chain()
     const networkId = chain.toString().toLowerCase()

@@ -1,6 +1,3 @@
-import { SessionIndex, ValidatorId } from '@polkadot/types/interfaces';
-import { Vec } from '@polkadot/types/codec';
-
 export interface Subscribable {
     name: string;
     address: string;
@@ -68,10 +65,4 @@ export interface MatrixbotMsg {
     status: string;
     alerts: Array<Alert>;
     version: string;
-}
-
-export interface ValidatorImOnlineParameters {
-  sessionIndex: SessionIndex;
-  eraIndex: number;
-  validatorActiveSet: Vec<ValidatorId>;
 }
